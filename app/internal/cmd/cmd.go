@@ -6,6 +6,7 @@ import (
 	"github.com/Lysander66/franky/app/internal/task"
 	"github.com/Lysander66/franky/app/manifest/config"
 	"github.com/Lysander66/franky/qlib/logger"
+	assets "github.com/Lysander66/franky/sunny"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,11 +26,15 @@ func Run() {
 
 	go task.RunLoop()
 
+	// frontend
+	go serveStatic()
+
 	g := gin.New()
 	pprof.Register(g)
 	g.Use(cors.Default())
 	gin.SetMode(gin.ReleaseMode)
-	g.Use(gin.Recovery())
+	g.Use(gin.Logger(), gin.Recovery())
+
 	g.ForwardedByClientIP = true
 	controller.SetRouter(g)
 
@@ -50,4 +55,11 @@ func Run() {
 		l.Fatal().Err(err).Msg("Server forced to shutdown")
 	}
 	l.Info().Msg("Server exiting")
+}
+
+func serveStatic() {
+	r := gin.Default()
+	//r.Static("/", "build")
+	r.StaticFS("/", assets.FS())
+	r.Run(":8080")
 }
