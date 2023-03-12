@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>RTCPeerConnection 连接测试</title>
+  </head>
+  <body>
+    <div class="app">
+      <div>
+        <h3>发送</h3>
+        <div style="margin-left: 70px; margin-top: -39px; margin-bottom: 10px">
+          状态：{[sendChannelState]}
+        </div>
+
+        <div>
+          <textarea
+            style="width: 400px; height: 100px"
+            placeholder="请输入要发送得文本...."
+            v-model="sendData"></textarea>
+        </div>
+      </div>
+      <div>
+        <h3>接收</h3>
+        <div style="margin-left: 70px; margin-top: -39px; margin-bottom: 10px">
+          状态：{[receiveChannelState]}
+        </div>
+        <div>
+          <textarea style="width: 400px; height: 100px">
+{[receiveData]}</textarea
+          >
+        </div>
+      </div>
+      <input type="button" title="呼叫" value="呼叫" v-on:click="call" />
+      <input type="button" title="发送" value="发送" v-on:click="send" />
+      <input type="button" title="挂断" value="挂断" v-on:click="stop" />
+      <hr />
+    </div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script type="text/javascript">
+    navigator.getUserMedia =
+      navigator.getUserMedia ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia ||
+      navigator.msGetUserMedia
+    let vm = new Vue({
+      el: '.app',
+      delimiters: ['{[', ']}'],
+      data: {
+        // 本地连接
+        localConnection: null,
+        // 远端视频流
+        remoteConnection: null,
+        // 本地通道
+        sendChannel: null,
+        sendChannelState: '',
+
+        // 远端通道
+        receiveChannel: null,
+        receiveChannelState: '',
+        // 远端接受到得数据
+        receiveData: '',
+        //  本地发送数据
+        sendData: '',
+        // ICE service地址
+        configuration: {
+          iceServers: [
+            {
+              urls: 'stun:49.232.162.254:2478',
+              username: 'admin',
+              credential: 'admin',
+            },
+          ],
+        },
+      },
+      methods: {
+        stop: function () {
+          let that = this
+          that.remoteConnection.close()
+          that.localConnection.close()
+          that.localConnection = null
+          that.remoteConnection = null
+          console.log('关闭会话')
+        },
+        send: async function () {
+          let that = this
+          if (that.sendData == '') {
+            return
+          }
+          if (that.sendChannel == null) {
+            return
+          }
+          console.log(that.sendChannel.readyState)
+          that.sendChannel.send(that.sendData)
+          console.log('发送数据:', that.sendData)
+        },
+        call: async function () {
+          let that = this
+          console.log('开始呼叫')
+
+          //  监听返回icecandidate 信息
+          that.localConnection = new RTCPeerConnection()
+          that.localConnection.addEventListener(
+            'icecandidate',
+            that.onIceCandidateA
+          )
+          // 实例化发送通道
+          that.sendChannel =
+            that.localConnection.createDataChannel('webrtc-datachannel')
+          that.sendChannel.onopen = that.onSendChannelStateChange
+          that.sendChannel.onclose = that.onSendChannelStateChange
+
+          that.remoteConnection = new RTCPeerConnection(that.configuration)
+          that.remoteConnection.addEventListener(
+            'icecandidate',
+            that.onIceCandidateB
+          )
+
+          // 远端数据到达监听事件
+          that.remoteConnection.ondatachannel = that.receiveChannelCallBack
+          // 监听ICE状态变化
+          that.localConnection.addEventListener(
+            'iceconnectionstatechange',
+            that.onIceStateChangeA
+          )
+          that.remoteConnection.addEventListener(
+            'iceconnectionstatechange',
+            that.onIceStateChangeB
+          )
+
+          // 创建通话offer
+          try {
+            console.log('localConnection 创建offer会话开始')
+            const offer = await that.localConnection.createOffer()
+            await that.onCreateOfferSuccess(offer)
+          } catch (e) {
+            console.log('创建会话描述SD失败：', e.toString())
+          }
+        },
+        receiveChannelCallBack: function (event) {
+          let that = this
+          that.receiveChannel = event.channel
+          that.receiveChannel.onmessage = that.onReceiveMessageCallBack
+          that.receiveChannel.onopen = that.onReceiveChannelStateChange
+          console.log('Receive channel callback', that.receiveChannel)
+        },
+        onReceiveChannelStateChange: function () {
+          this.receiveChannelState = this.receiveChannel.readyState
+          console.log('接受通道状态：' + this.receiveChannel.readyState)
+        },
+        onReceiveMessageCallBack: function (event) {
+          console.log('接受到数据:' + event.data)
+          this.receiveData = event.data
+        },
+        onSendChannelStateChange: function () {
+          this.sendChannelState = this.sendChannel.readyState
+          console.log('send channel state change', this.sendChannel.readyState)
+        },
+        // 创建提议offer成功
+        onCreateOfferSuccess: async function (event) {
+          let that = this
+          // 设置连接描述
+          console.log('localConnection 创建offer返回得SDP信息', event.sdp)
+          console.log('设置localConnection得本地描述start...')
+          try {
+            await that.localConnection.setLocalDescription(event)
+            console.log('设置localConnection得本地描述成功')
+          } catch (e) {
+            console.log('设置localConnection得本地描述错误：', e.toString())
+          }
+
+          console.log('设置remoteConnection得远端描述 start')
+          try {
+            await that.remoteConnection.setRemoteDescription(event)
+            console.log('设置remoteConnection得远端描述成功')
+          } catch (e) {
+            console.log('设置remoteConnection得远端描述错误：', e.toString())
+          }
+
+          // 开始应答
+          console.log('remoteConnection创建应答 answer start')
+          try {
+            const answer = await that.remoteConnection.createAnswer()
+            console.log('remoteConnection创建应答成功')
+            await that.onCreateAnswerSuccess(answer)
+          } catch (e) {
+            console.log('remoteConnection创建应答错误：', e.toString())
+          }
+        },
+        // 创建answer应答成功
+        onCreateAnswerSuccess: async function (answer) {
+          let that = this
+          console.log('remoteConnection创建应答answer数据：', answer)
+          console.log(
+            'localConnection与remoteConnection交换应答answer信息 start'
+          )
+
+          try {
+            await that.remoteConnection.setLocalDescription(answer)
+            console.log('设置remoteConnection得本地answer 应答远端描述成功')
+          } catch (e) {
+            console.log(
+              '设置remoteConnection得本地answer应答描述错误：',
+              e.toString()
+            )
+          }
+
+          try {
+            await that.localConnection.setRemoteDescription(answer)
+            console.log('设置localConnection得远端answer应答描述成功')
+          } catch (e) {
+            console.log(
+              '设置localConnection得远端answer应答描述错误：',
+              e.toString()
+            )
+          }
+        },
+
+        //
+        onAddIceCandidateSuccess: function (pc) {
+          console.log('添加' + this.getPcName(pc) + '      IceCandidate 成功')
+        },
+
+        onAddIceCandidateError: function (pc, err) {
+          console.log(
+            '添加' +
+              this.getPcName(pc) +
+              '       IceCandidate 失败' +
+              err.toString()
+          )
+        },
+        getPcName: function (pc) {
+          return pc === this.localConnection
+            ? 'localConnection'
+            : 'remoteConnection'
+        },
+      },
+    })
+  </script>
+</html>
