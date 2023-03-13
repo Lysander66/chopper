@@ -3,7 +3,7 @@ import { DEFINE_PATH } from '@/config/path'
 
 import { useLocation, useNavigate, Outlet } from 'react-router-dom'
 import {
-  BackTop,
+  FloatButton,
   Layout,
   Menu,
 } from 'antd'
@@ -13,6 +13,7 @@ import {
   PlayCircleOutlined,
   WifiOutlined,
   ThunderboltOutlined,
+  FunctionOutlined,
 } from '@ant-design/icons'
 
 const { Header, Content, Footer, Sider } = Layout
@@ -24,7 +25,7 @@ const LayoutPage = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible >
+      <Sider collapsed='false' defaultCollapsed >
         <div className='site-logo'>
           <div className='g-fire'>
             {
@@ -69,6 +70,12 @@ const LayoutPage = () => {
               label: 'Log',
               key: 'log',
               onClick: () => { navigate(DEFINE_PATH.log) },
+            },
+            {
+              icon: <FunctionOutlined />,
+              label: 'Encrypt',
+              key: 'encrypt',
+              onClick: () => { navigate(DEFINE_PATH.encrypt) },
             }
           ]}
         />
@@ -79,7 +86,7 @@ const LayoutPage = () => {
         <Content >
           <Outlet />
         </Content>
-        <BackTop className="myBackTop" />
+        <FloatButton.BackTop className="myBackTop" />
         <Footer>DevTools ©2023 Created by Lysander</Footer>
       </Layout>
     </Layout>

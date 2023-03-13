@@ -6,6 +6,7 @@ import PlayerPage from './page/PlayerPage'
 import WebSocketPage from './page/WebSocketPage'
 import LivePage from './page/LivePage'
 import LogPage from './page/LogPage'
+import EncryptPage from './page/EncryptPage'
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
@@ -20,6 +21,7 @@ function App () {
             <Route path={DEFINE_PATH.websocket} element={<WebSocketPage />} />
             <Route path={DEFINE_PATH.live} element={<LivePage />} />
             <Route path={DEFINE_PATH.log} element={<LogPage />} />
+            <Route path={DEFINE_PATH.encrypt} element={<EncryptPage />} />
           </Route>
         </Routes>
       </div>
