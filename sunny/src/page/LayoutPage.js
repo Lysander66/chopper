@@ -73,9 +73,9 @@ const LayoutPage = () => {
             },
             {
               icon: <FunctionOutlined />,
-              label: 'Encrypt',
-              key: 'encrypt',
-              onClick: () => { navigate(DEFINE_PATH.encrypt) },
+              label: 'Crypto',
+              key: 'crypto',
+              onClick: () => { navigate(DEFINE_PATH.crypto) },
             }
           ]}
         />

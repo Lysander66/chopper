@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/Lysander66/franky/app/internal/controller"
 	"github.com/Lysander66/franky/app/internal/task"
-	"github.com/Lysander66/franky/app/manifest/config"
 	"github.com/Lysander66/franky/qlib/logger"
 	assets "github.com/Lysander66/franky/sunny"
 	"net/http"
@@ -20,7 +19,6 @@ import (
 )
 
 func Run() {
-	conf := config.ReadGlobalConfig("app")
 	logger.InitZeroLog("app", zerolog.InfoLevel)
 	l := logger.Get()
 
@@ -38,7 +36,7 @@ func Run() {
 	g.ForwardedByClientIP = true
 	controller.SetRouter(g)
 
-	srv := &http.Server{Addr: conf.Server.ApiAddr, Handler: g}
+	srv := &http.Server{Addr: ":8180", Handler: g}
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			l.Fatal().Err(err).Msg("ListenAndServe")

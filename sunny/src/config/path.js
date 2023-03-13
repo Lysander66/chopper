@@ -4,5 +4,5 @@ export const DEFINE_PATH = {
   websocket: 'websocket',
   live: 'live',
   log: 'log',
-  encrypt: 'encrypt',
+  crypto: 'crypto',
 }

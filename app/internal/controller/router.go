@@ -7,7 +7,9 @@ import (
 )
 
 func SetRouter(g *gin.Engine) {
-	//api := g.Group("/api/v1")
+	api := g.Group("/api/v1")
+	api.GET("/encode", encode)
+	api.GET("/decode", decode)
 
 	// WebSocket
 	wsRouter := g.Group("/ws/v1")

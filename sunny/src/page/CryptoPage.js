@@ -3,15 +3,15 @@ import { Tabs, Row, Col, Button, Divider, Form, Input, Tooltip } from 'antd'
 import { CopyOutlined } from '@ant-design/icons'
 
 
-const EncryptPage = () => {
+const CryptoPage = () => {
   const onChange = (key) => {
     console.log(key)
   }
   const items = [
     {
-      key: 'Base64',
-      label: `Base64`,
-      children: <Base64Tab />,
+      key: 'Hash',
+      label: `Hash`,
+      children: <HashTab />,
     },
     {
       key: '2',
@@ -30,7 +30,7 @@ const EncryptPage = () => {
   )
 }
 
-const Base64Tab = () => {
+const HashTab = () => {
   const onChange = (e) => {
   }
 
@@ -42,6 +42,11 @@ const Base64Tab = () => {
         </Col>
 
         <Col span={2}>
+          <Divider orientation='center'>MD5</Divider>
+          <Row justify='center'>
+            <Button type='primary'>Hash</Button>
+          </Row>
+
           <Divider orientation='center'>Base64</Divider>
           <Row justify='center'>
             <Button type='primary'>Encode</Button>
@@ -51,9 +56,13 @@ const Base64Tab = () => {
             <Button type='primary'>Decode</Button>
           </Row>
 
-          <Divider orientation='center'>MD5</Divider>
+          <Divider orientation='center'>AES</Divider>
           <Row justify='center'>
             <Button type='primary'>Encrypt</Button>
+          </Row>
+          <br />
+          <Row justify='center'>
+            <Button type='primary'>Decrypt</Button>
           </Row>
         </Col>
 
@@ -70,4 +79,4 @@ const Base64Tab = () => {
   )
 }
 
-export default EncryptPage
+export default CryptoPage
