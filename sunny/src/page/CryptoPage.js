@@ -122,15 +122,15 @@ const TimestampTab = () => {
     <>
       <Row justify='center'>
         <Col span={5}>
-          <Input addonBefore='Format' value={input} onChange={onInputChange} style={{ width: 'calc(100% - 200px)' }} />
+          <Input addonBefore='Format' value={input} onChange={onInputChange} />
         </Col>
-
+        <Divider dashed type='vertical' />
         <Col span={5}>
-          <Input addonBefore='Unix' value={output} onChange={onOutputChange} style={{ width: 'calc(100% - 200px)' }} />
+          <Input addonBefore='Unix' value={output} onChange={onOutputChange} />
         </Col>
-
+        <Divider dashed type='vertical' />
         <Col span={5}>
-          <Input addonBefore='UnixMilli' value={output2} onChange={onOutput2Change} style={{ width: 'calc(100% - 200px)' }} />
+          <Input addonBefore='UnixMilli' value={output2} onChange={onOutput2Change} />
         </Col>
       </Row>
     </>

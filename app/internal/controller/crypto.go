@@ -4,16 +4,7 @@ import (
 	"github.com/Lysander66/franky/qlib/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"time"
 )
-
-func add() {
-	var t = time.Now()
-	t.Unix()
-	t.UnixMilli()
-	time.UnixMilli().Format()
-	time.Unix().Format()
-}
 
 // -------------------------*------------------------- crypto -------------------------#-------------------------
 
