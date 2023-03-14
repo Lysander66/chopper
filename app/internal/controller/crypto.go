@@ -1,58 +1,39 @@
 package controller
 
 import (
-	"crypto"
-	"encoding/base64"
-	"github.com/Lysander66/franky/qlib/logger"
 	"github.com/Lysander66/franky/qlib/util"
 	"github.com/gin-gonic/gin"
-	"github.com/gogf/gf/v2/util/gconv"
 	"net/http"
+	"time"
 )
 
-func encode(c *gin.Context) {
-	var (
-		algorithm = c.Query("algorithm")
-		s         = c.Query("s")
-		output    string
-	)
-
-	if gconv.Int64(c.Param("time")) == 0 {
-		//TODO
-	}
-	switch algorithm {
-	case "Base64":
-		output = base64.StdEncoding.EncodeToString([]byte(s))
-	case crypto.MD5.String():
-		output = util.Md5Hash(s)
-	default:
-	}
-
-	SucceedResp(c, output)
+func add() {
+	var t = time.Now()
+	t.Unix()
+	t.UnixMilli()
+	time.UnixMilli().Format()
+	time.Unix().Format()
 }
 
-func decode(c *gin.Context) {
-	var (
-		l         = logger.Get()
-		algorithm = c.Query("algorithm")
-		s         = c.Query("s")
-		output    string
-	)
+// -------------------------*------------------------- crypto -------------------------#-------------------------
 
-	switch algorithm {
-	case "Base64":
-		data, err := base64.StdEncoding.DecodeString(s)
-		if err != nil {
-			ErrorResp(c, err)
-			l.Err(err).Str("s", s).Msg("DecodeString")
-			return
-		}
-		output = string(data)
-	default:
-	}
-
-	SucceedResp(c, output)
+func md5Hash(c *gin.Context) {
+	SucceedResp(c, util.MD5Hash(c.Query("s")))
 }
+
+func sha1Hash(c *gin.Context) {
+	SucceedResp(c, util.SHA1Hash(c.Query("s")))
+}
+
+func sha256Hash(c *gin.Context) {
+	SucceedResp(c, util.SHA256Hash(c.Query("s")))
+}
+
+func sha512Hash(c *gin.Context) {
+	SucceedResp(c, util.SHA512Hash(c.Query("s")))
+}
+
+// -------------------------*------------------------- response -------------------------#-------------------------
 
 type ApiData struct {
 	Code int         `json:"code"`

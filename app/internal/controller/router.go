@@ -8,8 +8,10 @@ import (
 
 func SetRouter(g *gin.Engine) {
 	api := g.Group("/api/v1")
-	api.GET("/encode", encode)
-	api.GET("/decode", decode)
+	api.GET("crypto/md5", md5Hash)
+	api.GET("crypto/sha1", sha1Hash)
+	api.GET("crypto/sha256", sha256Hash)
+	api.GET("crypto/sha512", sha512Hash)
 
 	// WebSocket
 	wsRouter := g.Group("/ws/v1")
