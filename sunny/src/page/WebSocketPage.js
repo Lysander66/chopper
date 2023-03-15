@@ -1,42 +1,42 @@
-import './style/WebSocketPage.scss'
 import { formatTimeMillis } from '@/util/time'
-import SvelteJSONEditor from '@/component/SvelteJSONEditor'
 
 import React, { useEffect, useState } from 'react'
-import { Row, Col, Button, Form, Input, Switch, Timeline, message } from 'antd'
+import { Row, Col, Button, Input, List, Typography, message, Divider } from 'antd'
 
 const WebSocketPage = () => {
-  const [count, setCount] = useState(0)
-  const [freeze, setFreeze] = useState(false)
+  const [url, setUrl] = useState('')
+  const [wsConn, setWsConn] = useState(null)
   const [channel, setChannel] = useState('')
-  const [lastMessage, setLastMessage] = useState({})
-  const [messageHistory, setMessageHistory] = useState([])
+  const [list, setList] = useState([])
+
+  const onUrlChange = (e) => {
+    setUrl(e.target.value)
+  }
 
   useEffect(() => {
     if (!channel || channel.length === 0) {
       return
     }
-    setCount(count + 1)
-    if (!freeze) {
-      const obj = {
-        json: JSON.parse(channel),
-        label: `${formatTimeMillis(new Date())} len: ${channel.length}`,
-      }
-      setLastMessage(obj)
-      setMessageHistory([obj, ...messageHistory.filter(function (v, i) { return i < 35 })])
+    const item = {
+      msg: channel,
+      time: formatTimeMillis(new Date()),
     }
+    setList([...list.filter(function (v, i) { return i < 20 }), item])
   }, [channel])
 
-  const onFinish = (values) => {
-    const { url } = values
+  const start = () => {
     const conn = new WebSocket(url)
     conn.onmessage = (e) => {
       setChannel(e.data)
+      let ele = document.getElementById("demo")
+      ele.scrollTop = ele.scrollHeight
     }
     conn.onopen = function () {
+      setWsConn(conn)
       message.success('连接成功')
     }
     conn.onclose = function (e) {
+      setWsConn(null)
       message.info('连接关闭')
     }
     conn.onerror = function (e) {
@@ -44,95 +44,44 @@ const WebSocketPage = () => {
     }
   }
 
-  const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo)
-  }
-
-  const onChange = (checked) => {
-    setFreeze(checked)
-  }
-
-  const handleClick = (e, index) => {
-    setLastMessage(messageHistory[index])
-  }
-
-  const getColor = (i) => {
-    if (i < 6) {
-      return 'red'
-    } else if (i < 16) {
-      return 'green'
-    } else if (i < 26) {
-      return 'blue'
+  const stop = () => {
+    if (wsConn) {
+      wsConn.close()
     }
-    return 'gray'
   }
 
   return (
     <>
-      <Form
-        name='basic'
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        initialValues={{
-          url: '',
-        }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
-        colon={false}
-        autoComplete='off'
-        className='webSocketForm'
-      >
-        <Row>
-          <Col span={10} >
-            <Form.Item
-              label='WebSocket'
-              name='url'
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input your url',
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-          </Col>
-
-          <Col span={2}>
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button disabled={count > 1} htmlType='submit' type='primary' shape='round'>
-                {count > 1 ? count : '连接'}
-              </Button>
-            </Form.Item>
-          </Col>
-
-          <Col span={2} >
-            <Form.Item name='freeze' label='freeze' valuePropName='checked'>
-              <Switch onChange={onChange} />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
-
-      <Row>
-        <Col span={20} offset={1}>
-          <SvelteJSONEditor content={lastMessage} />
+      <Row justify='space-around'>
+        <Col >
+          <Input addonBefore='URL' value={url} onChange={onUrlChange} />
+          <Button onClick={start} type='primary'>连接</Button>
+          <Divider type='vertical' />
+          <Button onClick={stop} danger type='primary'>断开</Button>
+          <Divider type='vertical' />
+          <Button onClick={() => { setList([]) }} >Clear</Button>
         </Col>
 
-        <Col offset={1}>
-          <Timeline>
-            {
-              messageHistory.map((v, i) => {
-                return (
-                  <Timeline.Item key={i} color={getColor(i)}>
-                    < span key={i} onClick={e => handleClick(e, i)} className='myTimeline'>
-                      {v.label}
-                    </span>
-                  </Timeline.Item>
-                )
-              })
-            }
-          </Timeline>
+        <Col span={15}>
+          <List
+            style={{ height: '85vh', overflowY: 'scroll' }}
+            header={<div>Header</div>}
+            dataSource={list}
+            renderItem={(item, i) => (
+              <List.Item>
+                <div id='demo'>
+                  <Typography.Text mark={i === list.length - 1} style={{ width: '100px' }} type='success'>{item.time}</Typography.Text>
+                  <Typography.Paragraph
+                    copyable
+                    ellipsis={{ rows: 5, expandable: true }}
+                    title={`${item.time}--title`}
+                  >
+                    {item.msg}
+                  </Typography.Paragraph>
+                </div>
+              </List.Item>
+            )}
+          />
         </Col>
       </Row>
     </>

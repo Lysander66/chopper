@@ -12,6 +12,7 @@ import {
   HomeOutlined,
   PlayCircleOutlined,
   WifiOutlined,
+  SearchOutlined,
   ThunderboltOutlined,
   FunctionOutlined,
 } from '@ant-design/icons'
@@ -58,6 +59,12 @@ const LayoutPage = () => {
               label: 'WebSocket',
               key: 'websocket',
               onClick: () => { navigate(DEFINE_PATH.websocket) },
+            },
+            {
+              icon: <SearchOutlined />,
+              label: 'WebSocket2',
+              key: 'websocket2',
+              onClick: () => { navigate(DEFINE_PATH.JSONEditor) },
             },
             {
               icon: <CameraOutlined />,

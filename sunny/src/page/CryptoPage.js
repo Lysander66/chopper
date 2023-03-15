@@ -12,11 +12,6 @@ const CryptoPage = () => {
   const items = [
     {
       key: '1',
-      label: `Tab 1`,
-      children: <HashTab />,
-    },
-    {
-      key: '2',
       label: `Unix时间戳`,
       children: <>
         <TimestampTab />
@@ -33,6 +28,11 @@ const CryptoPage = () => {
         <br />
         <TimestampTab />
       </>,
+    },
+    {
+      key: '2',
+      label: `Tab 2`,
+      children: <HashTab />,
     },
     {
       key: '3',
