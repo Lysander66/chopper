@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Tabs, Row, Col, Button, Divider, Input, Tooltip, message } from 'antd'
+import { Tabs, Row, Col, Button, Divider, Input, InputNumber, Descriptions, Tooltip, message } from 'antd'
 import { SwapOutlined, CopyOutlined } from '@ant-design/icons'
 import { Base64 } from 'js-base64'
 import dayjs from 'dayjs'
@@ -42,7 +42,22 @@ const CryptoPage = () => {
   ]
 
   return (
-    <Tabs defaultActiveKey='1' items={items} onChange={onChange} />
+    <>
+      <Tabs defaultActiveKey='1' items={items} onChange={onChange} />
+      <br />
+      <br />
+      <br />
+      <Descriptions column={1} title="输入完成按回车即可">
+        <Descriptions.Item label="Unix 时间戳">Unix 时间戳是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数，不考虑闰秒。</Descriptions.Item>
+        <Descriptions.Item label="Unix">秒(10位)</Descriptions.Item>
+        <Descriptions.Item label="UnixMilli">毫秒(13位)</Descriptions.Item>
+        <Descriptions.Item label="format">YYYY-MM-DD HH:mm:ss</Descriptions.Item>
+        <Descriptions.Item label="2038年问题">
+          现时大部分使用UNIX的系统都是32位的，即它们会以32位有符号整数表示时间类型time_t。因此它可以表示136年的秒数。表示协调世界时间1901年12月13日星期五20时45分52秒至2038年1月19日3时14分07秒（二进制：01111111 11111111 11111111 11111111，0x7FFF:FFFF），在下一秒二进制数字会是10000000 00000000 00000000 00000000（0x8000:0000），这是负数，因此各系统会把时间误解作1901年12月13日20时45分52秒（亦有可能回归到1970年）。这时可能会令软件发生问题，导致系统瘫痪。
+          目前的解决方案是把系统由32位转为64位系统。在64位系统下，此时间最多可以表示到2922亿7702万6596年12月4日15时30分08秒。
+        </Descriptions.Item>
+      </Descriptions>
+    </>
   )
 }
 
@@ -50,87 +65,33 @@ const CryptoPage = () => {
 const TimestampTab = () => {
   const [input, setInput] = useState(dayjs().format('YYYY-MM-DD HH:mm:ss'))
   const [output, setOutput] = useState('')
-  const [output2, setOutput2] = useState('')
+  const [output2, setOutput2] = useState(dayjs().valueOf())
 
-  const copy = (e) => {
-    if (navigator.clipboard) {
-      // clipboard api 复制
-      navigator.clipboard.writeText(output)
-    } else {
-      let textarea = document.createElement('textarea')
-      document.body.appendChild(textarea)
-      // 隐藏此输入框
-      textarea.style.position = 'fixed'
-      textarea.style.clip = 'rect(0 0 0 0)'
-      textarea.style.top = '10px'
-      // 赋值
-      textarea.value = output
-      // 选中
-      textarea.select()
-      // 复制
-      document.execCommand('copy', true)
-      // 移除输入框
-      document.body.removeChild(textarea)
-    }
-
-    message.success('copied')
+  const onPressEnter1 = (e) => {
+    if (e.target.value.length === 0) return
+    let d = dayjs(e.target.value)
+    setOutput(d.unix())
+    setOutput2(d.valueOf())
   }
 
-  const onInputChange = (e) => {
-    setInput(e.target.value)
-    unix(e.target.value)
-    unixMilli(e.target.value)
-  }
-
-  const onOutputChange = (e) => {
-    setOutput(e.target.value)
-    format(e.target.value)
-  }
-
-  const onOutput2Change = (e) => {
-    setOutput2(e.target.value)
-    format(e.target.value)
-  }
-
-  const format = (text) => {
-    if (text.length === 0) return
-
-    // 毫秒 13位
-    if (text.length === 13) {
-      console.log(Number.parseInt(text))
-      let d = dayjs(Number.parseInt(text))
-      setInput(d.format('YYYY-MM-DD HH:mm:ss'))
-      return
-    }
-
-    // 秒 10位
-    let d = dayjs.unix(text)
+  // 秒10位 毫秒13位
+  const format = (value) => {
+    let d = value.length === 13 ? dayjs(Number.parseInt(value)) : dayjs.unix(value)
     setInput(d.format('YYYY-MM-DD HH:mm:ss'))
-  }
-
-  const unix = () => {
-    if (input.length === 0) return
-    setOutput(dayjs(input).unix())
-  }
-
-  const unixMilli = () => {
-    if (input.length === 0) return
-    setOutput2(dayjs(input).valueOf())
+    setOutput2(d.valueOf())
   }
 
   return (
     <>
       <Row justify='center'>
-        <Col span={5}>
-          <Input addonBefore='Format' value={input} onChange={onInputChange} />
+        <Col span={3}>
+          <Input addonBefore='Format' value={input} onChange={(e) => setInput(e.target.value)} onPressEnter={onPressEnter1} />
         </Col>
-        <Divider dashed type='vertical' />
-        <Col span={5}>
-          <Input addonBefore='Unix' value={output} onChange={onOutputChange} />
+        <Col span={3}>
+          <InputNumber addonBefore='Unix' value={output} onChange={(val) => setOutput(val)} onPressEnter={(e) => format(e.target.value)} />
         </Col>
-        <Divider dashed type='vertical' />
-        <Col span={5}>
-          <Input addonBefore='UnixMilli' value={output2} onChange={onOutput2Change} />
+        <Col span={3}>
+          <InputNumber addonBefore='UnixMilli' readOnly value={output2} onChange={(val) => setOutput2(val)} />
         </Col>
       </Row>
     </>
