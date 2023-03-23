@@ -27,6 +27,19 @@ const CryptoPage = () => {
         <TimestampTab />
         <br />
         <TimestampTab />
+        <br />
+        <br />
+        <br />
+        <Descriptions column={1} title="输入完成按回车即可">
+          <Descriptions.Item label="Unix 时间戳">Unix 时间戳是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数，不考虑闰秒。</Descriptions.Item>
+          <Descriptions.Item label="Unix">秒(10位)</Descriptions.Item>
+          <Descriptions.Item label="UnixMilli">毫秒(13位)</Descriptions.Item>
+          <Descriptions.Item label="format">YYYY-MM-DD HH:mm:ss</Descriptions.Item>
+          <Descriptions.Item label="2038年问题">
+            现时大部分使用UNIX的系统都是32位的，即它们会以32位有符号整数表示时间类型time_t。因此它可以表示136年的秒数。表示协调世界时间1901年12月13日星期五20时45分52秒至2038年1月19日3时14分07秒（二进制：01111111 11111111 11111111 11111111，0x7FFF:FFFF），在下一秒二进制数字会是10000000 00000000 00000000 00000000（0x8000:0000），这是负数，因此各系统会把时间误解作1901年12月13日20时45分52秒（亦有可能回归到1970年）。这时可能会令软件发生问题，导致系统瘫痪。
+            目前的解决方案是把系统由32位转为64位系统。在64位系统下，此时间最多可以表示到2922亿7702万6596年12月4日15时30分08秒。
+          </Descriptions.Item>
+        </Descriptions>
       </>,
     },
     {
@@ -42,25 +55,9 @@ const CryptoPage = () => {
   ]
 
   return (
-    <>
-      <Tabs defaultActiveKey='1' items={items} onChange={onChange} />
-      <br />
-      <br />
-      <br />
-      <Descriptions column={1} title="输入完成按回车即可">
-        <Descriptions.Item label="Unix 时间戳">Unix 时间戳是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数，不考虑闰秒。</Descriptions.Item>
-        <Descriptions.Item label="Unix">秒(10位)</Descriptions.Item>
-        <Descriptions.Item label="UnixMilli">毫秒(13位)</Descriptions.Item>
-        <Descriptions.Item label="format">YYYY-MM-DD HH:mm:ss</Descriptions.Item>
-        <Descriptions.Item label="2038年问题">
-          现时大部分使用UNIX的系统都是32位的，即它们会以32位有符号整数表示时间类型time_t。因此它可以表示136年的秒数。表示协调世界时间1901年12月13日星期五20时45分52秒至2038年1月19日3时14分07秒（二进制：01111111 11111111 11111111 11111111，0x7FFF:FFFF），在下一秒二进制数字会是10000000 00000000 00000000 00000000（0x8000:0000），这是负数，因此各系统会把时间误解作1901年12月13日20时45分52秒（亦有可能回归到1970年）。这时可能会令软件发生问题，导致系统瘫痪。
-          目前的解决方案是把系统由32位转为64位系统。在64位系统下，此时间最多可以表示到2922亿7702万6596年12月4日15时30分08秒。
-        </Descriptions.Item>
-      </Descriptions>
-    </>
+    <Tabs defaultActiveKey='1' items={items} onChange={onChange} />
   )
 }
-
 
 const TimestampTab = () => {
   const [input, setInput] = useState(dayjs().format('YYYY-MM-DD HH:mm:ss'))
