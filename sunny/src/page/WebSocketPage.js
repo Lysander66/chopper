@@ -54,7 +54,8 @@ const WebSocketPage = () => {
     <>
       <Row justify='space-around'>
         <Col >
-          <Input addonBefore='URL' value={url} onChange={onUrlChange} />
+          <br />
+          <Input style={{ paddingBottom: 10 }} addonBefore='URL' value={url} onChange={onUrlChange} />
           <Button onClick={start} type='primary'>连接</Button>
           <Divider type='vertical' />
           <Button onClick={stop} danger type='primary'>断开</Button>

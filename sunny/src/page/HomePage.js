@@ -1,40 +1,57 @@
-import 'css-doodle'
-import './style/HomePage.scss'
+import './style/PlayerPage.scss'
+import VideoPlayer from '@/component/VideoPlayer'
+
+import { useState } from 'react'
+import { Row, Col, Button, Form, Input } from 'antd'
 
 const HomePage = () => {
+  const [urlRow, setUrlRow] = useState(1)
+  const [urlList, setUrlList] = useState([])
+
+  const onStreamUrlChange = (e) => {
+    setUrlRow(e.target.value.trim().split('\n').length)
+  }
+
+  const onFinish = ({ streamUrl }) => {
+    const _urlList = streamUrl.trim().split('\n').filter((s) => { return s.trim().length > 0 })
+    setUrlList(_urlList.map(v => { return v.trim() }))
+  }
+
+  const onFinishFailed = (errorInfo) => {
+    console.log('Failed:', errorInfo)
+  }
+
   return (
-    <>
-      {/* <div className='home-bg' >
-        <css-doodle grid="40x40">{`
-    :doodle {
-        @size: 100vw 20vmin;
-    }
-    :container {
-        perspective: 100px;
-        transform-style: preserve-3d;
-    }
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 2px;
-    height: 2px;
-    border-radius: 50%;
-    top: @r(1%, 100%, 1.5);
-    left: @r(1%, 100%, 1.5);
-    background: hsl(@rn(1, 255, 3), @rn(50%, 90%), @rn(70%, 90%));
-    animation: move 10s infinite @r(-10, 0)s linear alternate;
-    transform: rotate(@rn(720deg)) translate3d(@r(-50, 50)vmin, @r(-50, 50)vmin, @r(-1000, 0)px);
-    zoom: @r(.1, 5, 3);
-    box-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 10px #fff;
-    @keyframes move {
-        100% {
-            transform: rotate(0) translate3d(0, 0, 0);
-        }
-    }
-    `}
-        </css-doodle>
-      </div> */}
-    </>
+    <div className='playerDiv'>
+      <Form
+        name='basic'
+        initialValues={{
+          streamUrl: ''
+        }}
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 16 }}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        colon={false}
+        autoComplete='off'
+      >
+        <Row>
+          <Col offset={4} span={10}>
+            <Form.Item label='直播流' name='streamUrl' rules={[{ required: true }]}>
+              <Input.TextArea onChange={onStreamUrlChange} rows={urlRow} placeholder='多个流地址，换行分隔' />
+            </Form.Item>
+          </Col>
+
+          <Col span={2}>
+            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Button type='primary' htmlType='submit'>播放</Button>
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+
+      <VideoPlayer urlList={urlList} />
+    </div>
   )
 }
 
